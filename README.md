@@ -1,4 +1,4 @@
-# 🛒 ShopVibe
+# 🛒 DevShop
 
 Loja virtual simples desenvolvida com React + Vite. Possui carrinho de compras com contexto global, consumo de API local com `json-server`, responsividade com Tailwind CSS e notificações com `react-hot-toast`.
 
