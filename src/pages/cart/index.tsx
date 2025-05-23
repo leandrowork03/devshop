@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 export function Cart() {
   const { addItem, cart, removeItem, final, total } = useContext(CartContext);
 
-  // Estado para mostrar/ocultar modal
+
   const [showModal, setShowModal] = useState(false);
 
   function adicionar(item: ProductProps) {
@@ -123,7 +123,7 @@ export function Cart() {
         )}
       </main>
 
-      {/* Modal simples de confirmação */}
+ 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded shadow-md max-w-sm w-full">
