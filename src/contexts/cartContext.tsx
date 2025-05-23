@@ -1,14 +1,14 @@
-import type { ReactNode } from "react";
-import { createContext, useState } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import type { ProductProps } from "../pages/home";
 
-interface CartContextData {
+export interface CartContextData {
   cart: cartProps[];
   cartAmount: number;
-  total: number,
+  total: number;
   addItem: (item: ProductProps) => void;
-  removeItem: (item: ProductProps)=> void
-  calculate: (item: cartProps[])=>void
+  removeItem: (item: ProductProps) => void;
+  calculate: (items: cartProps[]) => void;
+  final: (items: cartProps[]) => Promise<void>;
 }
 
 interface cartProps {
@@ -29,21 +29,17 @@ export const CartContext = createContext({} as CartContextData);
 
 export default function CartProvider({ children }: CartContextProps) {
   const [cart, setCart] = useState<cartProps[]>([]);
-  const [total, setTotal] =useState(0)
+  const [total, setTotal] = useState(0);
 
   function addItem(item: ProductProps) {
     const indexItem = cart.findIndex((e) => e.id === item.id);
 
     if (indexItem !== -1) {
       const updatedCart = [...cart];
-      const updatedItem = { ...updatedCart[indexItem] };
-
-      updatedItem.amount += 1;
-      updatedItem.total = updatedItem.amount * updatedItem.price;
-
-      updatedCart[indexItem] = updatedItem;
+      updatedCart[indexItem].amount += 1;
+      updatedCart[indexItem].total = updatedCart[indexItem].amount * updatedCart[indexItem].price;
       setCart(updatedCart);
-      calculate(updatedCart)
+      calculate(updatedCart);
       return;
     }
 
@@ -53,8 +49,9 @@ export default function CartProvider({ children }: CartContextProps) {
       total: item.price,
     };
 
-    setCart([...cart, data]);
-    calculate([...cart, data])
+    const newCart = [...cart, data];
+    setCart(newCart);
+    calculate(newCart);
   }
 
   function removeItem(item: ProductProps) {
@@ -62,30 +59,37 @@ export default function CartProvider({ children }: CartContextProps) {
 
     if (indexItem !== -1) {
       const updatedCart = [...cart];
-      const updatedItem = { ...updatedCart[indexItem] };
-
-      if(updatedItem.amount > 1){
-         updatedItem.amount -= 1;
-      updatedItem.total = updatedItem.amount * updatedItem.price;
-
-      updatedCart[indexItem] = updatedItem;
-      setCart(updatedCart);
-      calculate(updatedCart)
-      }else{
-        const filteredCart = cart.filter(e=> e.id !== item.id)
-    setCart(filteredCart)
-    calculate(filteredCart)
+      if (updatedCart[indexItem].amount > 1) {
+        updatedCart[indexItem].amount -= 1;
+        updatedCart[indexItem].total = updatedCart[indexItem].amount * updatedCart[indexItem].price;
+        setCart(updatedCart);
+        calculate(updatedCart);
+      } else {
+        const filteredCart = cart.filter((e) => e.id !== item.id);
+        setCart(filteredCart);
+        calculate(filteredCart);
       }
     }
   }
 
-  function calculate(item:cartProps[]){
-    const calculo = item.reduce((acc, obj)=>acc + (obj.price * obj.amount), 0)
-    setTotal(calculo)
+  async function final(_: cartProps[]) {
+  
+    return new Promise<void>((resolve) => {
+      setTimeout(() => {
+        setCart([]);
+        setTotal(0);
+        resolve();
+      }, 1500);
+    });
+  }
+
+  function calculate(items: cartProps[]) {
+    const totalCalc = items.reduce((acc, obj) => acc + (obj.price * obj.amount), 0);
+    setTotal(totalCalc);
   }
 
   return (
-    <CartContext.Provider value={{ cart, addItem, removeItem, calculate, total, cartAmount: cart.length }}>
+    <CartContext.Provider value={{ cart, cartAmount: cart.length, total, addItem, removeItem, calculate, final }}>
       {children}
     </CartContext.Provider>
   );
