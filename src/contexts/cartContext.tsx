@@ -1,0 +1,92 @@
+import type { ReactNode } from "react";
+import { createContext, useState } from "react";
+import type { ProductProps } from "../pages/home";
+
+interface CartContextData {
+  cart: cartProps[];
+  cartAmount: number;
+  total: number,
+  addItem: (item: ProductProps) => void;
+  removeItem: (item: ProductProps)=> void
+  calculate: (item: cartProps[])=>void
+}
+
+interface cartProps {
+  id: number;
+  title: string;
+  description: string;
+  price: number;
+  cover: string;
+  amount: number;
+  total: number;
+}
+
+interface CartContextProps {
+  children: ReactNode;
+}
+
+export const CartContext = createContext({} as CartContextData);
+
+export default function CartProvider({ children }: CartContextProps) {
+  const [cart, setCart] = useState<cartProps[]>([]);
+  const [total, setTotal] =useState(0)
+
+  function addItem(item: ProductProps) {
+    const indexItem = cart.findIndex((e) => e.id === item.id);
+
+    if (indexItem !== -1) {
+      const updatedCart = [...cart];
+      const updatedItem = { ...updatedCart[indexItem] };
+
+      updatedItem.amount += 1;
+      updatedItem.total = updatedItem.amount * updatedItem.price;
+
+      updatedCart[indexItem] = updatedItem;
+      setCart(updatedCart);
+      calculate(updatedCart)
+      return;
+    }
+
+    const data: cartProps = {
+      ...item,
+      amount: 1,
+      total: item.price,
+    };
+
+    setCart([...cart, data]);
+    calculate([...cart, data])
+  }
+
+  function removeItem(item: ProductProps) {
+    const indexItem = cart.findIndex((e) => e.id === item.id);
+
+    if (indexItem !== -1) {
+      const updatedCart = [...cart];
+      const updatedItem = { ...updatedCart[indexItem] };
+
+      if(updatedItem.amount > 1){
+         updatedItem.amount -= 1;
+      updatedItem.total = updatedItem.amount * updatedItem.price;
+
+      updatedCart[indexItem] = updatedItem;
+      setCart(updatedCart);
+      calculate(updatedCart)
+      }else{
+        const filteredCart = cart.filter(e=> e.id !== item.id)
+    setCart(filteredCart)
+    calculate(filteredCart)
+      }
+    }
+  }
+
+  function calculate(item:cartProps[]){
+    const calculo = item.reduce((acc, obj)=>acc + (obj.price * obj.amount), 0)
+    setTotal(calculo)
+  }
+
+  return (
+    <CartContext.Provider value={{ cart, addItem, removeItem, calculate, total, cartAmount: cart.length }}>
+      {children}
+    </CartContext.Provider>
+  );
+}
