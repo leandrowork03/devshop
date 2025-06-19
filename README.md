@@ -7,7 +7,7 @@ Loja virtual simples desenvolvida com React + Vite. Possui carrinho de compras c
 - [React](https://reactjs.org/)
 - [Vite](https://vitejs.dev/)
 - [TypeScript](https://www.typescriptlang.org/)
-- [Tailwind CSS](https://tailwindcss.com/)
+- [Tailwind CSS](https://tailwindcss.com/) 
 - [React Router DOM](https://reactrouter.com/)
 - [React Hot Toast](https://react-hot-toast.com/)
 - [JSON Server](https://github.com/typicode/json-server)
